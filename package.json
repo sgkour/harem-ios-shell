@@ -1,9 +1,13 @@
 {
   "name": "harem-ios-shell",
   "version": "1.0.0",
+  "private": true,
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0",
+    "typescript": "^5.0.0"
+  },
   "dependencies": {
     "@capacitor/core": "^6.0.0",
-    "@capacitor/ios": "^6.0.0",
-    "@capacitor/cli": "^6.0.0"
+    "@capacitor/ios": "^6.0.0"
   }
 }
