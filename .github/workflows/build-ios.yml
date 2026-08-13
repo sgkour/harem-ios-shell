@@ -6,24 +6,36 @@ on:
 jobs:
   build-ios:
     runs-on: macos-14
+
     steps:
+      # 1. 拉取代码
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 2. 设置 Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
+      # 3. 安装 Capacitor 依赖
       - name: Install Capacitor
         run: npm install @capacitor/core@^6.0.0 @capacitor/ios@^6.0.0 @capacitor/cli@^6.0.0
 
+      # 4. 【关键步骤】添加 iOS 平台
+      # 这一步就是在告诉云端机器：“我要做 iOS 应用，给我生成 iOS 的文件”
+      - name: Add iOS platform
+        run: npx cap add ios
+
+      # 5. 同步文件
       - name: Capacitor sync iOS
         run: npx cap sync ios
 
+      # 6. 安装 iOS 依赖 (CocoaPods)
       - name: Install CocoaPods
-        run: cd ios/App && pod install
+        run: cd ios/App && pod install --repo-update
 
+      # 7. 打包 IPA (不签名)
       - name: Build unsigned IPA
         run: |
           cd ios/App
@@ -37,6 +49,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             archive
 
+      # 8. 打包成 IPA 文件
       - name: Package IPA
         run: |
           cd ios/App/build
@@ -44,9 +57,10 @@ jobs:
           cp -r App.xcarchive/Products/Applications/*.app Payload/
           zip -r App-unsigned.ipa Payload/
 
+      # 9. 上传成品
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
           name: ios-unsigned-ipa
           path: ios/App/build/App-unsigned.ipa
-          retention-days: 30
+          retention-days: 1
